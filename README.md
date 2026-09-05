@@ -1,108 +1,73 @@
 # Система классов для решения задачи оптимизации
 
-Проект реализует гибкую архитектуру для решения задач оптимизации параметров функций на основе системы фиксированных интерфейсов в соответствии с требованиями задания.
+Проект реализует систему классов для решения задачи параметрической оптимизации на базе фиксированных интерфейсов.
 
 ---
 
 ## 1. Архитектура и обязательные требования
 
-### Принцип взаимодействия через интерфейсы
-Классы оптимизаторов, функционалов и функций взаимодействуют **исключительно** через фиксированные интерфейсы, не привязываясь к конкретным типам.
-- Оптимизаторы работают через интерфейсы `IFunctional`, `IDifferentiableFunctional`, `ILeastSquaresFunctional`, `IParametricFunction`.
-- Функционалы работают через `IFunction` и `IDifferentiableFunction`.
-- Векторы и матрицы абстрагированы через `IVector` и `IMatrix`.
+- **Интерфейсы неизменяемы**: Все интерфейсы объявлены в точном соответствии с заданием.
+- **Взаимодействие строго через интерфейсы**:
+  - Оптимизатор `IOptimizator` принимает только `IFunctional`, `IParametricFunction`, `IVector`.
+  - Функционал `IFunctional` принимает только `IFunction`.
+  - При необходимости вычисления градиента или матрицы Якоби функционалы и оптимизаторы запрашивают специализированные интерфейсы: `IDifferentiableFunction`, `IDifferentiableFunctional`, `ILeastSquaresFunctional`.
 
 ---
 
-## 2. Фиксированные интерфейсы
+## 2. Реализации в проекте
 
-```csharp
-public interface IVector : IList<double> { }
-public interface IMatrix : IList<IList<double>> { }
+### Из Example.cs (исходные базовые реализации):
+1. **`LineFunction : IParametricFunction`** — одномерная линейная функция $f(x) = ax + b$ (реализует только `IFunction`).
+2. **`MyFunctional : IFunctional`** — функционал суммы квадратов ошибок.
+3. **`MinimizerMonteCarlo : IOptimizator`** — универсальный метод случайного поиска Монте-Карло.
 
-namespace Functions
-{
-    public interface IParametricFunction
-    {
-        IFunction Bind(IVector parameters);
-    }
+### Выбранные реализации из задания (которых не было в Example.cs):
+1. **`PiecewiseLinearFunction : IParametricFunction`** (Кусочно-линейная функция):
+   - Задаётся сеткой узлов $x_0 < x_1 < \dots < x_{k-1}$.
+   - Параметрами являются значения функции в узлах: $(y_0, y_1, \dots, y_{k-1})$.
+   - Метод `Bind` возвращает реализацию **`IDifferentiableFunction`**.
+   - Аналитический градиент по параметрам: $\frac{\partial f}{\partial y_i} = 1 - t$, $\frac{\partial f}{\partial y_{i+1}} = t$.
 
-    public interface IFunction
-    {
-        double Value(IVector point);
-    }
+2. **`L2NormFunctional : IDifferentiableFunctional, ILeastSquaresFunctional`** ($l_2$ норма разности):
+   - Реализует евклидову норму $\|r\|_2 = \sqrt{\sum (f(x_i) - y_i)^2}$.
+   - Реализует **`ILeastSquaresFunctional`**:
+     - `Residual(IFunction function)`: вектор невязок $r_i = f(x_i) - y_i$.
+     - `Jacobian(IFunction function)`: матрица Якоби $J_{i, j} = \frac{\partial f(x_i)}{\partial \theta_j}$, вычисляемая через `IDifferentiableFunction.Gradient`.
+   - Реализует **`IDifferentiableFunctional`**: градиент $\nabla F = \frac{J^T r}{\|r\|_2}$.
 
-    public interface IDifferentiableFunction : IFunction
-    {
-        // Вычисляет градиент по параметрам исходной IParametricFunction
-        IVector Gradient(IVector point);
-    }
-}
+3. **`GaussNewtonOptimizer : IOptimizator`** (Алгоритм Гаусса-Ньютона):
+   - Требует реализации **`ILeastSquaresFunctional`**.
+   - На каждой итерации решает систему нормальных уравнений:
+     $$(J^T J + \lambda I)\Delta \theta = -J^T r$$
+   - Выполняет одномерный поиск шага и обновляет вектор параметров с квадратичной скоростью сходимости.
 
-namespace Functionals
-{
-    public interface IFunctional
-    {
-        double Value(IFunction function);
-    }
+---
 
-    public interface IDifferentiableFunctional : IFunctional
-    {
-        IVector Gradient(IFunction function);
-    }
+## 3. Структура файлов
 
-    public interface ILeastSquaresFunctional : IFunctional
-    {
-        IVector Residual(IFunction function);
-        IMatrix Jacobian(IFunction function);
-    }
-}
-
-public interface IOptimizator
-{
-    IVector Minimize(IFunctional objective,
-                     IParametricFunction function,
-                     IVector initialParameters,
-                     IVector minimumParameters = default,
-                     IVector maximumParameters = default);
-}
+```
+object-oriented-approach-2/
+├── Interfaces/
+│   └── Interfaces.cs             # Фиксированные интерфейсы (IVector, IMatrix, Functions, Functionals, IOptimizator)
+├── LinearAlgebra/
+│   ├── Vector.cs                 # Реализация IVector (операции, нормы, скалярное произведение)
+│   └── Matrix.cs                 # Реализация IMatrix (СЛАУ по Гауссу, нормальные уравнения)
+├── Functions/
+│   └── PiecewiseLinearFunction.cs# Кусочно-линейная функция (IDifferentiableFunction)
+├── Functionals/
+│   └── L2NormFunctional.cs       # L2-норма (IDifferentiableFunctional, ILeastSquaresFunctional)
+├── Optimizers/
+│   └── GaussNewtonOptimizer.cs   # Алгоритм Гаусса-Ньютона (ILeastSquaresFunctional)
+├── Example.cs                    # Исходный пример из задания
+├── Program.cs                    # Демонстрационный запуск и проверка контрактов
+├── README.md                     # Документация проекта
+└── OptimizationApp.csproj        # Файл проекта .NET
 ```
 
 ---
 
-## 3. Матрица реализаций
+## 4. Запуск
 
-| Компонент | Класс | Реализуемые интерфейсы | Описание / Особенности |
-|---|---|---|---|
-| **Функция 1** | `LinearFunction` | `IParametricFunction` $\to$ `IDifferentiableFunction` | Линейная $n$-мерная функция $f(x) = \sum w_i x_i + b$. Число параметров: $n+1$. Дифференцируема по параметрам. |
-| **Функция 2** | `PolynomialFunction` | `IParametricFunction` $\to$ `IFunction` | Полином $n$-й степени в 1D $P_n(x) = \sum a_k x^k$. Число параметров: $n+1$. **Не реализует** `IDifferentiableFunction`. |
-| **Функция 3** | `PiecewiseLinearFunction` | `IParametricFunction` $\to$ `IDifferentiableFunction` | Кусочно-линейная функция на сетке узлов. Параметры — значения в узлах. **Реализует** `IDifferentiableFunction`. |
-| **Функция 4** | `CubicSplineFunction` | `IParametricFunction` $\to$ `IFunction` | Нелинейный кубический сплайн. **Не реализует** `IDifferentiableFunction`. |
-| **Функционал 1** | `L1NormFunctional` | `IDifferentiableFunctional` | $L_1$-норма разности $\sum \|f(x_i) - y_i\|$. **Не реализует** `ILeastSquaresFunctional`. |
-| **Функционал 2** | `L2NormFunctional` | `IDifferentiableFunctional`, `ILeastSquaresFunctional` | $L_2$-норма разности $\sqrt{\sum (f(x_i) - y_i)^2}$. Вектор невязок и матрица Якоби. |
-| **Функционал 3** | `LInfNormFunctional` | `IFunctional` | $L_\infty$-норма $\max \|f(x_i) - y_i\|$. **Не реализует** `IDifferentiableFunctional` и `ILeastSquaresFunctional`. |
-| **Функционал 4** | `IntegralFunctional` | `IFunctional` | Численный интеграл по области $\int_\Omega f(x) dx$ (формула Симпсона 1/3 в 1D, кратный интеграл в $n$D). |
-| **Оптимизатор 1** | `SimulatedAnnealingOptimizer` | `IOptimizator` | **Универсальный**: алгоритм имитации отжига (работает с любыми функционалами и функциями). |
-| **Оптимизатор 1'** | `MonteCarloOptimizer` | `IOptimizator` | **Универсальный**: метод случайного поиска Монте-Карло. |
-| **Оптимизатор 2** | `ConjugateGradientOptimizer` | `IOptimizator` | **Требует `IDifferentiableFunctional`**: метод нелинейных сопряжённых градиентов Полака-Рибьера с одномерным поиском Армихо. |
-| **Оптимизатор 2'** | `GradientDescentOptimizer` | `IOptimizator` | **Требует `IDifferentiableFunctional`**: градиентный спуск с дроблением шага. |
-| **Оптимизатор 3** | `GaussNewtonOptimizer` | `IOptimizator` | **Требует `ILeastSquaresFunctional`**: алгоритм Гаусса-Ньютона с решением нормальных уравнений $(J^T J + \lambda I)\Delta = -J^T r$. |
-
----
-
-## 4. Запуск и тестирование
-
-Сборка и запуск программы:
 ```bash
 dotnet run
 ```
-
-Программа выполняет комплексный набор тестов:
-1. Вывод матрицы соответствия контрактам интерфейсов;
-2. Подгонка 1D линейной функции всеми тремя группами оптимизаторов;
-3. Подгонка 2D линейной функции методом Гаусса-Ньютона;
-4. Подгонка полинома методом имитации отжига;
-5. Подгонка кусочно-линейной функции методом Гаусса-Ньютона;
-6. Подгонка нелинейного кубического сплайна;
-7. Минимизация интегрального функционала;
-8. Негативные тесты: проверка того, что оптимизаторы и функционалы корректно отклоняют неподдерживаемые интерфейсы с понятным `ArgumentException`.
