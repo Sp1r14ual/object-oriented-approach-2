@@ -20,7 +20,8 @@ namespace Functions
 
         public PiecewiseLinearFunction(IEnumerable<double> knots)
         {
-            if (knots == null) throw new ArgumentNullException(nameof(knots));
+            if (knots == null) 
+                throw new ArgumentNullException(nameof(knots));
             _knots = knots.OrderBy(x => x).ToList();
             if (_knots.Count < 2)
                 throw new ArgumentException("At least 2 knots are required for a piecewise linear function.", nameof(knots));
@@ -50,11 +51,10 @@ namespace Functions
 
         public IFunction Bind(IVector parameters)
         {
-            if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+            if (parameters == null) 
+                throw new ArgumentNullException(nameof(parameters));
             if (parameters.Count != _knots.Count)
-            {
                 throw new ArgumentException($"Expected {_knots.Count} parameters (values at knots), but got {parameters.Count}.", nameof(parameters));
-            }
 
             return new BoundPiecewiseLinearFunction(_knots, parameters);
         }

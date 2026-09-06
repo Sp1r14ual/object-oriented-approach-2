@@ -24,7 +24,8 @@ namespace Functionals
 
         public L2NormFunctional(IEnumerable<(IVector Point, double Value)> dataPoints, bool squared = false)
         {
-            if (dataPoints == null) throw new ArgumentNullException(nameof(dataPoints));
+            if (dataPoints == null) 
+                throw new ArgumentNullException(nameof(dataPoints));
             _dataPoints = new List<(IVector Point, double Value)>(dataPoints);
             if (_dataPoints.Count == 0)
                 throw new ArgumentException("At least one data point is required.", nameof(dataPoints));
@@ -33,7 +34,8 @@ namespace Functionals
 
         public L2NormFunctional(IEnumerable<(double X, double Y)> points1D, bool squared = false)
         {
-            if (points1D == null) throw new ArgumentNullException(nameof(points1D));
+            if (points1D == null) 
+                throw new ArgumentNullException(nameof(points1D));
             _dataPoints = new List<(IVector Point, double Value)>();
             foreach (var (x, y) in points1D)
             {
@@ -63,7 +65,8 @@ namespace Functionals
         /// </summary>
         public IVector Residual(IFunction function)
         {
-            if (function == null) throw new ArgumentNullException(nameof(function));
+            if (function == null) 
+                throw new ArgumentNullException(nameof(function));
 
             var res = new Vector(_dataPoints.Count);
             foreach (var (pt, y) in _dataPoints)
@@ -80,7 +83,8 @@ namespace Functionals
         /// </summary>
         public IMatrix Jacobian(IFunction function)
         {
-            if (function == null) throw new ArgumentNullException(nameof(function));
+            if (function == null) 
+                throw new ArgumentNullException(nameof(function));
             if (function is not IDifferentiableFunction diffFunc)
             {
                 throw new ArgumentException(
@@ -104,13 +108,13 @@ namespace Functionals
         /// </summary>
         public IVector Gradient(IFunction function)
         {
-            if (function == null) throw new ArgumentNullException(nameof(function));
+            if (function == null) 
+                throw new ArgumentNullException(nameof(function));
             if (function is not IDifferentiableFunction diffFunc)
-            {
                 throw new ArgumentException(
                     $"Function of type '{function.GetType().Name}' does not implement IDifferentiableFunction. " +
                     "Analytical gradient cannot be computed.", nameof(function));
-            }
+            
 
             var r = Residual(function);
             var J = Jacobian(diffFunc);
@@ -129,16 +133,12 @@ namespace Functionals
             }
 
             if (Squared)
-            {
                 return grad * 2.0;
-            }
             else
             {
                 double norm = ((Vector)r).Norm();
                 if (norm < 1e-15)
-                {
                     return Vector.CreateZeros(p);
-                }
                 return grad / norm;
             }
         }

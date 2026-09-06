@@ -29,18 +29,20 @@ namespace Optimizers
                                  IVector minimumParameters = default,
                                  IVector maximumParameters = default)
         {
-            if (objective == null) throw new ArgumentNullException(nameof(objective));
-            if (function == null) throw new ArgumentNullException(nameof(function));
-            if (initialParameters == null) throw new ArgumentNullException(nameof(initialParameters));
+            if (objective == null) 
+                throw new ArgumentNullException(nameof(objective));
+            if (function == null) 
+                throw new ArgumentNullException(nameof(function));
+            if (initialParameters == null) 
+                throw new ArgumentNullException(nameof(initialParameters));
 
             // Проверка строгого требования: требуется ILeastSquaresFunctional
             if (objective is not ILeastSquaresFunctional lsqObjective)
-            {
                 throw new ArgumentException(
                     $"Objective of type '{objective.GetType().Name}' does not implement ILeastSquaresFunctional. " +
                     "GaussNewtonOptimizer requires an objective that implements ILeastSquaresFunctional.",
                     nameof(objective));
-            }
+            
 
             var current = new Vector(initialParameters);
             Clamp(current, minimumParameters, maximumParameters);
@@ -57,9 +59,7 @@ namespace Optimizers
 
                 double deltaNorm = delta.Norm();
                 if (deltaNorm < Tolerance)
-                {
                     break;
-                }
 
                 // Линейный поиск шага с делением пополам (backtracking)
                 double currentCost = objective.Value(boundFunc);
@@ -82,10 +82,7 @@ namespace Optimizers
                 }
 
                 if (!improved)
-                {
-                    // Если даже уменьшение шага не улучшает функционал, остановка
                     break;
-                }
 
                 current = candidate;
             }
