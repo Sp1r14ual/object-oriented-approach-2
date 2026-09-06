@@ -16,12 +16,7 @@
 
 ## 2. Реализации в проекте
 
-### Из Example.cs (исходные базовые реализации):
-1. **`LineFunction : IParametricFunction`** — одномерная линейная функция $f(x) = ax + b$ (реализует только `IFunction`).
-2. **`MyFunctional : IFunctional`** — функционал суммы квадратов ошибок.
-3. **`MinimizerMonteCarlo : IOptimizator`** — универсальный метод случайного поиска Монте-Карло.
-
-### Выбранные реализации из задания (которых не было в Example.cs):
+### Выбранные реализации из задания
 1. **`PiecewiseLinearFunction : IParametricFunction`** (Кусочно-линейная функция):
    - Задаётся сеткой узлов $x_0 < x_1 < \dots < x_{k-1}$.
    - Параметрами являются значения функции в узлах: $(y_0, y_1, \dots, y_{k-1})$.
@@ -43,30 +38,33 @@
 
 ---
 
-## 3. Структура файлов
+## 3. Теоретические основы
+
+Подробное математическое описание алгоритма Гаусса-Ньютона, регуляризации Левенберга, метода исключения Гаусса с выбором главного элемента, а также концепций ООП и вывода формул дифференцирования вынесено в отдельный документ:
+
+👉 **[THEORY.md](THEORY.md)**
+
+---
+
+## 4. Структура файлов
 
 ```
 object-oriented-approach-2/
-├── Interfaces/
-│   └── Interfaces.cs             # Фиксированные интерфейсы (IVector, IMatrix, Functions, Functionals, IOptimizator)
-├── LinearAlgebra/
-│   ├── Vector.cs                 # Реализация IVector (операции, нормы, скалярное произведение)
-│   └── Matrix.cs                 # Реализация IMatrix (СЛАУ по Гауссу, нормальные уравнения)
-├── Functions/
-│   └── PiecewiseLinearFunction.cs# Кусочно-линейная функция (IDifferentiableFunction)
-├── Functionals/
-│   └── L2NormFunctional.cs       # L2-норма (IDifferentiableFunctional, ILeastSquaresFunctional)
-├── Optimizers/
-│   └── GaussNewtonOptimizer.cs   # Алгоритм Гаусса-Ньютона (ILeastSquaresFunctional)
-├── Example.cs                    # Исходный пример из задания
-├── Program.cs                    # Демонстрационный запуск и проверка контрактов
-├── README.md                     # Документация проекта
-└── OptimizationApp.csproj        # Файл проекта .NET
+├── Interfaces.cs             # Фиксированные интерфейсы (IVector, IMatrix, Functions, Functionals, IOptimizator)
+├── Vector.cs                 # Реализация IVector (операции, нормы, скалярное произведение)
+├── Matrix.cs                 # Реализация IMatrix (СЛАУ по Гауссу, нормальные уравнения)
+├── PiecewiseLinearFunction.cs# Кусочно-линейная функция (IDifferentiableFunction)
+├── L2NormFunctional.cs       # L2-норма (IDifferentiableFunctional, ILeastSquaresFunctional)
+├── GaussNewtonOptimizer.cs   # Алгоритм Гаусса-Ньютона (ILeastSquaresFunctional)
+├── Program.cs                # Демонстрационный запуск и проверка
+├── THEORY.md                 # Подробное математическое и теоретическое описание
+├── README.md                 # Документация проекта
+└── OptimizationApp.csproj    # Файл проекта .NET
 ```
 
 ---
 
-## 4. Запуск
+## 5. Запуск
 
 ```bash
 dotnet run
