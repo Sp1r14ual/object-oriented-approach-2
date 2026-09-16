@@ -264,100 +264,9 @@ $$\Delta_i = \frac{1}{A_{i, i}} \left( b_i - \sum_{j=i+1}^{m-1} A_{i, j} \Delta_
 
 ---
 
-## 3. Архитектура и реализация программного кода
+## 3. Реализация программного кода
 
-### 3.1. Архитектурная диаграмма классов
-
-Ниже представлена структурная схема разработанных классов и их соответствие фиксированным интерфейсам:
-
-```mermaid
-classDiagram
-    direction TB
-
-    class IVector {
-        <<interface>>
-    }
-    class IMatrix {
-        <<interface>>
-    }
-    class Vector {
-        +Dot(IVector) double
-        +Norm() double
-        +operator+(Vector, IVector) Vector
-        +operator-(Vector, IVector) Vector
-        +operator*(Vector, double) Vector
-    }
-    class Matrix {
-        +RowCount int
-        +ColCount int
-        +Transpose() Matrix
-        +Multiply(IVector) Vector
-        +SolveLinearSystem(IMatrix, IVector)$ Vector
-        +SolveNormalEquations(IMatrix, IVector, double)$ Vector
-    }
-
-    IVector <|.. Vector : implements
-    IMatrix <|.. Matrix : implements
-
-    class IParametricFunction {
-        <<interface>>
-        +Bind(IVector) IFunction
-    }
-    class IFunction {
-        <<interface>>
-        +Value(IVector) double
-    }
-    class IDifferentiableFunction {
-        <<interface>>
-        +Gradient(IVector) IVector
-    }
-
-    IFunction <|-- IDifferentiableFunction : extends
-    IParametricFunction <|.. PiecewiseLinearFunction : implements
-    IDifferentiableFunction <|.. BoundPiecewiseLinearFunction : implements
-    PiecewiseLinearFunction *-- BoundPiecewiseLinearFunction : creates
-
-    class IFunctional {
-        <<interface>>
-        +Value(IFunction) double
-    }
-    class IDifferentiableFunctional {
-        <<interface>>
-        +Gradient(IFunction) IVector
-    }
-    class ILeastSquaresFunctional {
-        <<interface>>
-        +Residual(IFunction) IVector
-        +Jacobian(IFunction) IMatrix
-    }
-
-    IFunctional <|-- IDifferentiableFunctional : extends
-    IFunctional <|-- ILeastSquaresFunctional : extends
-    IDifferentiableFunctional <|.. L2NormFunctional : implements
-    ILeastSquaresFunctional <|.. L2NormFunctional : implements
-
-    class IOptimizator {
-        <<interface>>
-        +Minimize(IFunctional, IParametricFunction, IVector, ...) IVector
-    }
-    class GaussNewtonOptimizer {
-        +MaxIterations int
-        +Tolerance double
-        +Damping double
-        +Minimize(IFunctional, IParametricFunction, IVector, ...) IVector
-    }
-
-    IOptimizator <|.. GaussNewtonOptimizer : implements
-    GaussNewtonOptimizer ..> ILeastSquaresFunctional : consumes
-    GaussNewtonOptimizer ..> IParametricFunction : binds
-    GaussNewtonOptimizer ..> Matrix : solves linear system
-```
-
-### 3.2. Листинги ключевых компонентов системы
-
-Ниже приведены исходные тексты программных модулей, реализующих разработанные алгоритмы.
-
-#### 3.2.1. Контракт интерфейсов (`Interfaces.cs`)
+### 3.1. Контракт интерфейсов (`Interfaces.cs`)
 ```csharp
 using System.Collections.Generic;
 
@@ -419,7 +328,7 @@ public interface IOptimizator
 }
 ```
 
-#### 3.2.2. Вектор линейной алгебры (`Vector.cs`)
+### 3.2. Вектор линейной алгебры (`Vector.cs`)
 ```csharp
 using System;
 using System.Collections.Generic;
@@ -504,7 +413,7 @@ namespace LinearAlgebra
 }
 ```
 
-#### 3.2.3. Матрица и решение нормальных уравнений (`Matrix.cs`)
+### 3.3. Матрица и решение нормальных уравнений (`Matrix.cs`)
 ```csharp
 using System;
 using System.Collections.Generic;
@@ -631,7 +540,7 @@ namespace LinearAlgebra
 }
 ```
 
-#### 3.2.4. Кусочно-линейная функция (`PiecewiseLinearFunction.cs`)
+### 3.4. Кусочно-линейная функция (`PiecewiseLinearFunction.cs`)
 ```csharp
 using System;
 using System.Collections.Generic;
@@ -731,7 +640,7 @@ namespace Functions
 }
 ```
 
-#### 3.2.5. Функционал $L_2$-нормы (`L2NormFunctional.cs`)
+### 3.5. Функционал $L_2$-нормы (`L2NormFunctional.cs`)
 ```csharp
 using System;
 using System.Collections.Generic;
@@ -814,7 +723,7 @@ namespace Functionals
 }
 ```
 
-#### 3.2.6. Оптимизатор Гаусса-Ньютона (`GaussNewtonOptimizer.cs`)
+### 3.6. Оптимизатор Гаусса-Ньютона (`GaussNewtonOptimizer.cs`)
 ```csharp
 using System;
 using Functions;
@@ -895,7 +804,7 @@ namespace Optimizers
 }
 ```
 
-#### 3.2.7. Главный модуль программы (`Program.cs`)
+### 3.7. Главный модуль программы (`Program.cs`)
 ```csharp
 using System;
 using System.Collections.Generic;
