@@ -15,7 +15,7 @@ namespace LinearAlgebra
         public Matrix(int rows, int cols) : base(rows)
         {
             if (rows < 0 || cols < 0)
-                throw new ArgumentException("Dimensions cannot be negative.");
+                throw new ArgumentException("Размеры не могут быть отрицательными.");
 
             for (int i = 0; i < rows; i++)
             {
@@ -71,7 +71,7 @@ namespace LinearAlgebra
         {
             if (vector == null) throw new ArgumentNullException(nameof(vector));
             if (ColCount != vector.Count)
-                throw new ArgumentException($"Matrix column count ({ColCount}) must match vector length ({vector.Count}).");
+                throw new ArgumentException($"Количество столбцов матрицы ({ColCount}) должно совпадать с длиной вектора ({vector.Count}).");
 
             var res = new Vector(RowCount);
             for (int i = 0; i < RowCount; i++)
@@ -95,7 +95,7 @@ namespace LinearAlgebra
             int bCols = bRows > 0 ? b[0].Count : 0;
 
             if (aCols != bRows)
-                throw new ArgumentException($"Cannot multiply matrix {aRows}x{aCols} by {bRows}x{bCols}.");
+                throw new ArgumentException($"Невозможно умножить матрицу {aRows}x{aCols} на {bRows}x{bCols}.");
 
             var res = new Matrix(aRows, bCols);
             for (int i = 0; i < aRows; i++)
@@ -114,18 +114,18 @@ namespace LinearAlgebra
         }
 
         /// <summary>
-        /// Solves linear system A * x = b using Gaussian elimination with partial pivoting.
+        /// Решает линейную систему A * x = b методом Гаусса с частичным выбором.
         /// </summary>
         public static Vector SolveLinearSystem(IMatrix A, IVector b)
         {
             int n = A.Count;
             if (n == 0) return new Vector();
             if (A[0].Count != n)
-                throw new ArgumentException("Matrix A must be square.");
+                throw new ArgumentException("Матрица A должна быть квадратной.");
             if (b.Count != n)
-                throw new ArgumentException("Dimension of b must match matrix A.");
+                throw new ArgumentException("Размерность b должна совпадать с размеромностью матрицы A.");
 
-            // Create augmented matrix
+            // Расширенная матрица
             double[][] a = new double[n][];
             for (int i = 0; i < n; i++)
             {
@@ -137,7 +137,7 @@ namespace LinearAlgebra
                 a[i][n] = b[i];
             }
 
-            // Forward elimination with partial pivoting
+            // Прямой ход с частичным выбором
             for (int p = 0; p < n; p++)
             {
                 int maxRow = p;
@@ -159,7 +159,7 @@ namespace LinearAlgebra
 
                 if (Math.Abs(a[p][p]) < 1e-15)
                 {
-                    // Add small regularization if singular
+                    // Добавление небольшой регуляризации, если сингулярна
                     a[p][p] = 1e-12;
                 }
 
@@ -173,7 +173,7 @@ namespace LinearAlgebra
                 }
             }
 
-            // Back substitution
+            // Обратная подстановка
             var x = new double[n];
             for (int i = n - 1; i >= 0; i--)
             {
@@ -189,7 +189,7 @@ namespace LinearAlgebra
         }
 
         /// <summary>
-        /// Solves (J^T * J + lambda * I) * delta = -J^T * r
+        /// Решает (J^T * J + lambda * I) * delta = -J^T * r
         /// </summary>
         public static Vector SolveNormalEquations(IMatrix J, IVector r, double damping = 1e-6)
         {

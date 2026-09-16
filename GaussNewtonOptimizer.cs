@@ -39,8 +39,8 @@ namespace Optimizers
             // Проверка строгого требования: требуется ILeastSquaresFunctional
             if (objective is not ILeastSquaresFunctional lsqObjective)
                 throw new ArgumentException(
-                    $"Objective of type '{objective.GetType().Name}' does not implement ILeastSquaresFunctional. " +
-                    "GaussNewtonOptimizer requires an objective that implements ILeastSquaresFunctional.",
+                    $"Объект типа '{objective.GetType().Name}' не реализует ILeastSquaresFunctional. " +
+                    "Оптимизатор Гаусса-Ньютона требует, чтобы объектив реализовывал ILeastSquaresFunctional.",
                     nameof(objective));
             
 

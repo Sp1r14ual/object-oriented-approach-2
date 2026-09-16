@@ -34,7 +34,7 @@ namespace LinearAlgebra
         {
             if (other == null) throw new ArgumentNullException(nameof(other));
             if (Count != other.Count)
-                throw new ArgumentException($"Dimension mismatch: {Count} vs {other.Count}");
+                throw new ArgumentException($"Несоответствие размерностей: {Count} vs {other.Count}");
 
             double sum = 0;
             for (int i = 0; i < Count; i++)
@@ -57,7 +57,7 @@ namespace LinearAlgebra
         public static Vector operator +(Vector a, IVector b)
         {
             if (a == null || b == null) throw new ArgumentNullException();
-            if (a.Count != b.Count) throw new ArgumentException("Vector dimensions must match for addition.");
+            if (a.Count != b.Count) throw new ArgumentException("Размерности векторов должны совпадать.");
             var res = new Vector(a.Count);
             for (int i = 0; i < a.Count; i++) res.Add(a[i] + b[i]);
             return res;
@@ -66,7 +66,7 @@ namespace LinearAlgebra
         public static Vector operator -(Vector a, IVector b)
         {
             if (a == null || b == null) throw new ArgumentNullException();
-            if (a.Count != b.Count) throw new ArgumentException("Vector dimensions must match for subtraction.");
+            if (a.Count != b.Count) throw new ArgumentException("Размерности векторов должны совпадать.");
             var res = new Vector(a.Count);
             for (int i = 0; i < a.Count; i++) res.Add(a[i] - b[i]);
             return res;

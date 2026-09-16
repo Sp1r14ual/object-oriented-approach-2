@@ -24,22 +24,22 @@ namespace Functions
                 throw new ArgumentNullException(nameof(knots));
             _knots = knots.OrderBy(x => x).ToList();
             if (_knots.Count < 2)
-                throw new ArgumentException("At least 2 knots are required for a piecewise linear function.", nameof(knots));
+                throw new ArgumentException("Для кусочно-линейной функции требуется как минимум 2 узла.", nameof(knots));
 
             // Проверка на совпадение узлов
             for (int i = 0; i < _knots.Count - 1; i++)
             {
                 if (Math.Abs(_knots[i + 1] - _knots[i]) < 1e-14)
-                    throw new ArgumentException("Knots must be strictly distinct.");
+                    throw new ArgumentException("Узлы должны быть строго различными.");
             }
         }
 
         public PiecewiseLinearFunction(int knotCount, double xMin = 0.0, double xMax = 1.0)
         {
             if (knotCount < 2)
-                throw new ArgumentException("At least 2 knots are required.", nameof(knotCount));
+                throw new ArgumentException("Требуется как минимум 2 узла.", nameof(knotCount));
             if (xMax <= xMin)
-                throw new ArgumentException("xMax must be greater than xMin.");
+                throw new ArgumentException("xMax должен быть больше xMin.");
 
             _knots = new List<double>(knotCount);
             double step = (xMax - xMin) / (knotCount - 1);
@@ -54,7 +54,7 @@ namespace Functions
             if (parameters == null) 
                 throw new ArgumentNullException(nameof(parameters));
             if (parameters.Count != _knots.Count)
-                throw new ArgumentException($"Expected {_knots.Count} parameters (values at knots), but got {parameters.Count}.", nameof(parameters));
+                throw new ArgumentException($"Ожидалось {_knots.Count} параметров (значения в узлах), получено {parameters.Count}.", nameof(parameters));
 
             return new BoundPiecewiseLinearFunction(_knots, parameters);
         }
@@ -102,7 +102,7 @@ namespace Functions
             {
                 if (point == null) throw new ArgumentNullException(nameof(point));
                 if (point.Count == 0)
-                    throw new ArgumentException("Point must contain at least 1 coordinate.");
+                    throw new ArgumentException("Точка должна содержать хотя бы 1 координату.");
 
                 double x = point[0];
                 var (idx, t) = GetInterval(x);
@@ -117,7 +117,7 @@ namespace Functions
             {
                 if (point == null) throw new ArgumentNullException(nameof(point));
                 if (point.Count == 0)
-                    throw new ArgumentException("Point must contain at least 1 coordinate.");
+                    throw new ArgumentException("Точка должна содержать хотя бы 1 координату.");
 
                 double x = point[0];
                 var (idx, t) = GetInterval(x);

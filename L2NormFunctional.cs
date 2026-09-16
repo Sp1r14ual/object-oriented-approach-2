@@ -28,7 +28,7 @@ namespace Functionals
                 throw new ArgumentNullException(nameof(dataPoints));
             _dataPoints = new List<(IVector Point, double Value)>(dataPoints);
             if (_dataPoints.Count == 0)
-                throw new ArgumentException("At least one data point is required.", nameof(dataPoints));
+                throw new ArgumentException("Требуется хотя бы одна точка данных.", nameof(dataPoints));
             Squared = squared;
         }
 
@@ -42,7 +42,7 @@ namespace Functionals
                 _dataPoints.Add((new Vector(x), y));
             }
             if (_dataPoints.Count == 0)
-                throw new ArgumentException("At least one data point is required.", nameof(points1D));
+                throw new ArgumentException("Требуется хотя бы одна точка данных.", nameof(points1D));
             Squared = squared;
         }
 
@@ -88,8 +88,8 @@ namespace Functionals
             if (function is not IDifferentiableFunction diffFunc)
             {
                 throw new ArgumentException(
-                    $"Function of type '{function.GetType().Name}' does not implement IDifferentiableFunction. " +
-                    "Jacobian matrix cannot be computed.", nameof(function));
+                    $"Функция типа '{function.GetType().Name}' не реализует IDifferentiableFunction. " +
+                    "Матрица Якоби не может быть вычислена.", nameof(function));
             }
 
             var jacobian = new Matrix();
@@ -112,8 +112,8 @@ namespace Functionals
                 throw new ArgumentNullException(nameof(function));
             if (function is not IDifferentiableFunction diffFunc)
                 throw new ArgumentException(
-                    $"Function of type '{function.GetType().Name}' does not implement IDifferentiableFunction. " +
-                    "Analytical gradient cannot be computed.", nameof(function));
+                    $"Функция типа '{function.GetType().Name}' не реализует IDifferentiableFunction. " +
+                    "Аналитический градиент не может быть вычислен.", nameof(function));
             
 
             var r = Residual(function);
